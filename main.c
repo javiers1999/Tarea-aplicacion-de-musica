@@ -36,7 +36,10 @@ void crearArtista(char*, Map*);
 void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
 void importarCancionesCSV(Map* , Map* , Map* , list* );
 
-void agregarAlbum(Map* , Map* );    
+void agregarAlbum(Map* , Map* , Map*, list*);
+
+
+void buscarCancion(Map*);
 /**===================== **/
 char* _strdup(const char*);
 const char* get_csv_field(char*, int);
@@ -58,12 +61,14 @@ int main(void){
           case 2:
                   break;
           case 3:
+                  agregarAlbum(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
                   break;
           case 4:
                   break;
           case 5:
                   break;
           case 6:
+                  buscarCancion(mapCanciones);
                   break;
           case 7:
                   break;
@@ -118,7 +123,7 @@ void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, 
     printf("%d canciones importadas exitosamente\n", cont);
 }
 
-void agregarAlbum(Map* mapAlbumes, Map* mapCanciones){ /** opcion 3 **/
+void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* listaCanciones){ /** opcion 3 **/
     int option;
 
     char nombreAlbum[1025];
@@ -129,24 +134,24 @@ void agregarAlbum(Map* mapAlbumes, Map* mapCanciones){ /** opcion 3 **/
     char artista[1025];
 
     printf("Escriba nombre del album : ");
-    scanf("%s", &nombreAlbum);
+    scanf("%s", nombreAlbum);
     printf("\nEscriba fecha de lanzamiento : ");
-    scanf("%s", &fecha);
+    scanf("%s", fecha);
     if (searchMap(mapAlbumes, nombreAlbum) == NULL ){
         crearAlbum(nombreAlbum, fecha, mapAlbumes);
     } else {
-        printf("\nAlbum existe");
+        printf("\nAlbum existe\n");
     }
     printf("Quiere agregar canciones al album? [1]SI  [2]NO  ");
     scanf("%d", &option);
     while ( option == 1){
         printf("\nEscriba nombre cancion: ");
-        scanf("%s", &nombreCancion);
+        scanf("%s", nombreCancion);
         printf("\nEscriba duracion: ");
-        scanf("%s", &duracion);
+        scanf("%s", duracion);
         printf("\nEscriba artista: ");
-        scanf("%s", &artista);
-        crearCancion(nombreCancion, artista , duracion, nombreAlbum, mapAlbumes, mapArtista, mapCanciones, listaCanciones);
+        scanf("%s", artista);
+        crearCancion(nombreCancion, artista , duracion, nombreAlbum, mapAlbumes, mapArtistas, mapCanciones, listaCanciones);
         printf("CANCION AGREGADA CON EXITO\nQuiere agregar canciones al album? [1]SI  [2]NO  ");
         scanf("%d", &option);
     }
@@ -162,7 +167,7 @@ void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map*
     }
     Artista* artistaAgregar = searchMap(mapArtistas, artista);
     if (artistaAgregar == NULL){
-      crearArtista(nombre, mapArtistas);
+      crearArtista(artista, mapArtistas);
       artistaAgregar = searchMap(mapArtistas, artista);
     }
     Cancion* nuevo = malloc(sizeof(Cancion));
@@ -175,6 +180,23 @@ void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map*
     list_push_back(artistaAgregar->listaCanciones, nombre);
     list_push_back(listaCanciones, nombre);
     return;
+}
+
+void buscarCancion(Map* mapCanciones){
+    char buscar[1025];
+    getchar();
+    printf("Ingrese el nombre de la cancion a buscar: ");
+    scanf("%[^\n]s", buscar);
+    Cancion* encontrada = searchMap(mapCanciones, buscar);
+    if(encontrada){
+        printf("Nombre de la Cancion: %s\n", encontrada->Nombre);
+        printf("Nombre del Artista: %s\n", encontrada->Artista);
+        printf("Duracion de la Cancion: %s\n", encontrada->Duracion);
+        printf("Album: %s\n", encontrada->Album);
+    } else {
+        printf("No Esta\n");
+    }
+
 }
 
 void crearArtista(char* nombre, Map* mapArtista){
