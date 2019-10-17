@@ -35,6 +35,8 @@ void crearAlbum(char*, char*, Map*);
 void crearArtista(char*, Map*);
 void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
 void importarCancionesCSV(Map* , Map* , Map* , list* );
+
+void agregarAlbum(Map* , Map* );    
 /**===================== **/
 char* _strdup(const char*);
 const char* get_csv_field(char*, int);
@@ -114,6 +116,41 @@ void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, 
     }
     fclose(cancionesCsv);
     printf("%d canciones importadas exitosamente\n", cont);
+}
+
+void agregarAlbum(Map* mapAlbumes, Map* mapCanciones){ /** opcion 3 **/
+    int option;
+
+    char nombreAlbum[1025];
+    char fecha[1025];
+
+    char nombreCancion[1025];
+    char duracion[1025];
+    char artista[1025];
+
+    printf("Escriba nombre del album : ");
+    scanf("%s", &nombreAlbum);
+    printf("\nEscriba fecha de lanzamiento : ");
+    scanf("%s", &fecha);
+    if (searchMap(mapAlbumes, nombreAlbum) == NULL ){
+        crearAlbum(nombreAlbum, fecha, mapAlbumes);
+    } else {
+        printf("\nAlbum existe");
+    }
+    printf("Quiere agregar canciones al album? [1]SI  [2]NO  ");
+    scanf("%d", &option);
+    while ( option == 1){
+        printf("\nEscriba nombre cancion: ");
+        scanf("%s", &nombreCancion);
+        printf("\nEscriba duracion: ");
+        scanf("%s", &duracion);
+        printf("\nEscriba artista: ");
+        scanf("%s", &artista);
+        crearCancion(nombreCancion, artista , duracion, nombreAlbum, mapAlbumes, mapArtista, mapCanciones, listaCanciones);
+        printf("CANCION AGREGADA CON EXITO\nQuiere agregar canciones al album? [1]SI  [2]NO  ");
+        scanf("%d", &option);
+    }
+    return;
 }
 
 void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
