@@ -40,6 +40,7 @@ void agregarAlbum(Map* , Map* , Map*, list*);
 
 
 void buscarCancion(Map*);
+void buscarCancionArtista(Map*, Map*);
 /**===================== **/
 char* _strdup(const char*);
 const char* get_csv_field(char*, int);
@@ -71,6 +72,7 @@ int main(void){
                   buscarCancion(mapCanciones);
                   break;
           case 7:
+                  buscarCancionArtista(mapArtistas, mapCanciones);
                   break;
           case 8:
                   break;
@@ -114,13 +116,14 @@ void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, 
         char* artista = _strdup(get_csv_field(linea, 2));
         char* duracion = _strdup(get_csv_field(linea, 3));
         char* album = _strdup(get_csv_field(linea, 4));
-        crearCancion(nombre, artista, duracion, album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
-        if (searchMap(mapCanciones, nombre) != NULL){
-          cont++;
+        if (searchMap(mapCanciones, nombre) == NULL){
+            crearCancion(nombre, artista, duracion, album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
+            cont++;
         }
     }
     fclose(cancionesCsv);
     printf("%d canciones importadas exitosamente\n", cont);
+    printf("Hay %ld canciones en el sistema\n", mapCount(mapCanciones));
 }
 
 void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* listaCanciones){ /** opcion 3 **/
@@ -197,6 +200,33 @@ void buscarCancion(Map* mapCanciones){
         printf("No Esta\n");
     }
 
+}
+
+void buscarCancionArtista(Map* mapArtista, Map* mapCanciones){
+    char buscar[1025];
+    getchar();
+    printf("Ingrese el nombre del Artista: ");
+    scanf("%[^\n]s", buscar);
+
+    Artista* encontrado = searchMap(mapArtista, buscar);
+
+    if (encontrado){
+        char* imprimir;
+        imprimir = _strdup(list_first(encontrado->listaCanciones));
+        do {
+            if (imprimir == NULL) break;
+            Cancion* aImprimir = searchMap(mapCanciones, imprimir);
+            printf("Nombre de la Cancion: %s\n", aImprimir->Nombre);
+            printf("Duracion de la Cancion: %s\n", aImprimir->Duracion);
+            printf("Album: %s\n", aImprimir->Album);
+
+            imprimir = list_next(encontrado->listaCanciones);
+        } while (imprimir != NULL);
+    } else {
+        printf("No se encontro al artista ingresado\n");
+    }
+
+    return;
 }
 
 void crearArtista(char* nombre, Map* mapArtista){
