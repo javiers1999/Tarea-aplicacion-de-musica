@@ -33,7 +33,7 @@ typedef struct {
 int menuPrincipal();
 void crearAlbum(char*, char*, Map*);
 void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
-
+void importarCancionesCSV(Map* , Map* , Map* , list* );
 /**===================== **/
 char * _strdup(const char*);
 const char *get_csv_field(char*, int);
@@ -50,6 +50,7 @@ int main(void){
   do {
       switch (menuPrincipal()){
           case 1:
+                  importarCancionesCSV(mapCanciones, mapAlbumes, mapArtistas, listaCanciones);
                   break;
           case 2:
                   break;
@@ -89,6 +90,29 @@ int menuPrincipal(){
         scanf("%d", &opcion);
     } while (opcion < 1 || opcion > 9);
     return opcion;
+}
+
+void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, list* listaCanciones){
+    FILE* cancionesCsv = fopen("canciones.csv", "r");
+    if (cancionesCsv == NULL){
+        printf("ERROR\n");
+        return;
+    }
+    char linea[1025];
+    int cont = 0;
+    fgets(linea, 1024, cancionesCsv);
+    while (fgets(linea, 1024, cancionesCsv) != NULL){
+        char* nombre = _strdup(get_csv_field(linea, 1));
+        char* artista = _strdup(get_csv_field(linea, 2));
+        char* duracion = _strdup(get_csv_field(linea, 3));
+        char* album = _strdup(get_csv_field(linea, 4));
+        crearCancion(nombre, artista, duracion, album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
+        if (searchMap(mapCanciones, nombre) != NULL){
+          cont++;
+        }
+    }
+    fclose(cancionesCsv);
+    printf("%d canciones importadas exitosamente\n", cont);
 }
 
 void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
