@@ -27,12 +27,11 @@ typedef struct {
 
 typedef struct {
   char* nombre;
-  list* listaAlbumes,
-  list* listaCanciones
-}
+  list* listaCanciones;
+} Artista;
 
 int menuPrincipal();
-
+Album* crearAlbum(char* nombre, char* fecha, Map* mapAlbumes)
 /**===================== **/
 char * _strdup(const char*);
 const char *get_csv_field(char*, int);
