@@ -41,6 +41,7 @@ void agregarAlbum(Map* , Map* , Map*, list*);
 
 void buscarCancion(Map*);
 void buscarCancionArtista(Map*, Map*);
+void buscarAlbum(Map*);
 /**===================== **/
 char* _strdup(const char*);
 const char* get_csv_field(char*, int);
@@ -75,8 +76,10 @@ int main(void){
                   buscarCancionArtista(mapArtistas, mapCanciones);
                   break;
           case 8:
+                  buscarAlbum(mapAlbumes);
                   break;
           case 9:
+                  printf("Hasta Pronto!\n");
                   return 0;
           default:
                   return 0;
@@ -227,6 +230,27 @@ void buscarCancionArtista(Map* mapArtista, Map* mapCanciones){
     }
 
     return;
+}
+
+void buscarAlbum(Map* mapAlbumes){
+    char buscar[1025];
+    getchar();
+    printf("Ingrese el nombre del Album: ");
+    scanf("%[^\n]s", buscar);
+
+    Album* encontrado = searchMap(mapAlbumes, buscar);
+
+    if (encontrado){
+        char* imprimir;
+        imprimir = _strdup(list_first(encontrado->listaCanciones));
+        do {
+            if (imprimir == NULL) break;
+            printf("Nombre Cancion: %s\n", imprimir);
+            imprimir = list_next(encontrado->listaCanciones);
+        } while (imprimir != NULL);
+    } else {
+        printf("No se encontro el album ingresado\n");
+    }
 }
 
 void crearArtista(char* nombre, Map* mapArtista){
