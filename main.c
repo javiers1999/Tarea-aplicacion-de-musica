@@ -32,6 +32,7 @@ typedef struct {
 
 int menuPrincipal();
 void crearAlbum(char*, char*, Map*);
+void crearArtista(char*, Map*);
 void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
 void importarCancionesCSV(Map* , Map* , Map* , list* );
 /**===================== **/
@@ -136,6 +137,15 @@ void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map*
     list_push_back(albumAgregar->listaCanciones, nombre);
     list_push_back(artistaAgregar->listaCanciones, nombre);
     list_push_back(listaCanciones, nombre);
+    return;
+}
+
+void crearArtista(char* nombre, Map* mapArtista){
+    if (searchMap(mapArtista, nombre) != NULL) return NULL;
+    Artista* nuevo = malloc (sizeof(Artista));
+    nuevo->nombre = nombre;
+    nuevo->listaCanciones = list_create_empty();
+    insertMap(mapArtista, nombre, nuevo);
     return;
 }
 
