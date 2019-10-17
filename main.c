@@ -31,7 +31,9 @@ typedef struct {
 } Artista;
 
 int menuPrincipal();
-Album* crearAlbum(char* nombre, char* fecha, Map* mapAlbumes)
+void crearAlbum(char*, char*, Map*);
+void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
+
 /**===================== **/
 char * _strdup(const char*);
 const char *get_csv_field(char*, int);
@@ -89,6 +91,39 @@ int menuPrincipal(){
     return opcion;
 }
 
+void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
+    Album* albumAgregar;
+    albumAgregar = searchMap(mapAlbumes, album);
+    if (albumAgregar == NULL){
+      crearAlbum(album, "01-01-1970", mapAlbumes);
+      albumAgregar = searchMap(mapAlbumes, album);
+    }
+    Artista* artistaAgregar = searchMap(mapArtistas, artista);
+    if (artistaAgregar == NULL){
+      crearArtista(nombre, mapArtistas);
+      artistaAgregar = searchMap(mapArtistas, artista);
+    }
+    Cancion* nuevo = malloc(sizeof(Cancion));
+    nuevo->Nombre = nombre;
+    nuevo->Artista = artista;
+    nuevo->Duracion = duracion;
+    nuevo->Album = album;
+    insertMap(mapCanciones, nombre, nuevo);
+    list_push_back(albumAgregar->listaCanciones, nombre);
+    list_push_back(artistaAgregar->listaCanciones, nombre);
+    list_push_back(listaCanciones, nombre);
+    return;
+}
+
+void crearAlbum(char* nombre, char* fecha, Map* mapAlbumes){
+    if (searchMap(mapAlbumes, nombre) == NULL){
+        Album* nuevo = malloc(sizeof(Album));
+        nuevo->Nombre = nombre;
+        nuevo->Fecha = fecha;
+        nuevo->listaCanciones = list_create_empty();
+    }
+    return;
+}
 
 char * _strdup (const char *s) {
 	size_t len = strlen (s) + 1;
