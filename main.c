@@ -37,6 +37,7 @@ void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
 void importarCancionesCSV(Map* , Map* , Map* , list* );
 
 void agregarAlbum(Map* , Map* , Map*, list*);
+void agregarCancion(Map* , Map* , Map* , list*);
 
 
 void buscarCancion(Map*);
@@ -66,6 +67,7 @@ int main(void){
                   agregarAlbum(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
                   break;
           case 4:
+                  agregarCancion(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
                   break;
           case 5:
                   break;
@@ -148,6 +150,7 @@ void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* li
     } else {
         printf("\nAlbum existe\n");
     }
+    printf("\nAlbum agregado\n");
     printf("Quiere agregar canciones al album? [1]SI  [2]NO  ");
     scanf("%d", &option);
     while ( option == 1){
@@ -162,6 +165,31 @@ void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* li
         scanf("%d", &option);
     }
     return;
+}
+
+void agregarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* listaCanciones){
+    char nombreCancion[1025];
+    char duracion[1025];
+    char artista[1025];
+    char album[1025];
+
+    printf("Escriba nombre de la cancion : ");
+    scanf("%s", nombreCancion);
+    printf("\nEscriba el artista de la cancion : ");
+    scanf("%s", artista);
+    printf("\nEscriba duracion de la cancion : ");
+    scanf("%s", duracion);
+    printf("\nEscriba el album");
+    scanf("%s", album);
+
+    if(searchMap(mapAlbumes,album ) != NULL){
+        if (searchMap(mapCanciones , nombreCancion) == NULL) {
+            crearCancion(nombreCancion,artista,duracion,album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
+            printf("\nCancion agregada\n");
+        }else{
+            printf("Cancion ya existe");
+        }
+    }
 }
 
 void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
