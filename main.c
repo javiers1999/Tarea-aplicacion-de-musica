@@ -148,6 +148,7 @@ void exportarCancionesCSV(list* listaCanciones, Map* mapCanciones, Map* mapAlbum
     }
     char* cancionActual = list_first(listaCanciones);
     do {
+        if(cancionActual == NULL) break;
         Cancion* cancionActualStruct = searchMap(mapCanciones, cancionActual);
         char* albumCancionActual = cancionActualStruct->Album;
         char* duracionCancionActual = cancionActualStruct->Duracion;
@@ -164,6 +165,8 @@ void exportarCancionesCSV(list* listaCanciones, Map* mapCanciones, Map* mapAlbum
     } while (cancionActual != NULL);
     if (fclose(cancionesCSV)!=0){
         printf("Error al escribir el archivo. Datos no guardados correctamente\n");
+    }else{
+        printf("Canciones exportadas con exito\n");
     }
     return;
 }
@@ -218,9 +221,9 @@ void agregarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* 
     scanf("%s", artista);
     printf("\nEscriba duracion de la cancion : ");
     scanf("%s", duracion);
-    printf("\nEscriba el album");
+    printf("\nEscriba el album : ");
     scanf("%s", album);
-    printf("\nIngrese la fecha");
+    printf("\nIngrese la fecha : ");
     scanf("%s", fecha);
 
     if(searchMap(mapAlbumes,album ) != NULL){
