@@ -166,7 +166,7 @@ void exportarCancionesCSV(list* listaCanciones, Map* mapCanciones, Map* mapAlbum
     if (fclose(cancionesCSV)!=0){
         printf("Error al escribir el archivo. Datos no guardados correctamente\n");
     }else{
-        printf("Canciones exportadas con exito\n");
+        printf("Canciones exportadas con exito en el archivo %s\n", filename);
     }
     return;
 }
