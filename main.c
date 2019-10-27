@@ -33,13 +33,12 @@ typedef struct {
 int menuPrincipal();
 void crearAlbum(char*, char*, Map*);
 void crearArtista(char*, Map*);
-void crearCancion(char*, char*, char*, char*, Map*, Map*, Map*, list*);
+void crearCancion(char*, char*, char*, char*, char*, Map*, Map*, Map*, list*);
 void importarCancionesCSV(Map* , Map* , Map* , list* );
-
-void agregarAlbum(Map* , Map* , Map*, list*);
-void agregarCancion(Map* , Map* , Map* , list*);
-
-
+void exportarCancionesCSV(list*, Map*, Map*);
+void agregarAlbum(Map*, Map*, Map*, list*);
+void agregarCancion(Map*, Map*, Map*, list*);
+void eliminarCancion(Map*, Map*, Map*, list*);
 void buscarCancion(Map*);
 void buscarCancionArtista(Map*, Map*);
 void buscarAlbum(Map*);
@@ -51,17 +50,19 @@ int stringEqual(const void*, const void*);
 /**=====================**/
 
 int main(void){
-  Map* mapCanciones = createMap(stringHash, stringEqual);
-  Map* mapAlbumes = createMap(stringHash, stringEqual);
-  Map* mapArtistas = createMap(stringHash, stringEqual);
-  list* listaCanciones = list_create_empty();
+    srand(time(NULL));      // SE UTILIZA PARA EVITAR QUE RAND GENERE EL MISMO PATRON DE NUMEROS CADA VEZ QUE SE UTILIZA EL PROGRAMA
+    Map* mapCanciones = createMap(stringHash, stringEqual);
+    Map* mapAlbumes = createMap(stringHash, stringEqual);
+    Map* mapArtistas = createMap(stringHash, stringEqual);
+    list* listaCanciones = list_create_empty();
 
-  do {
-      switch (menuPrincipal()){
-          case 1:
-                  importarCancionesCSV(mapCanciones, mapAlbumes, mapArtistas, listaCanciones);
-                  break;
+    do {
+        switch (menuPrincipal()){
+            case 1:
+                    importarCancionesCSV(mapCanciones, mapAlbumes, mapArtistas, listaCanciones);
+                    break;
           case 2:
+                  exportarCancionesCSV(listaCanciones, mapCanciones, mapAlbumes);
                   break;
           case 3:
                   agregarAlbum(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
@@ -70,6 +71,7 @@ int main(void){
                   agregarCancion(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
                   break;
           case 5:
+                  eliminarCancion(mapAlbumes, mapCanciones, mapArtistas, listaCanciones);
                   break;
           case 6:
                   buscarCancion(mapCanciones);
@@ -121,8 +123,9 @@ void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, 
         char* artista = _strdup(get_csv_field(linea, 2));
         char* duracion = _strdup(get_csv_field(linea, 3));
         char* album = _strdup(get_csv_field(linea, 4));
+        char* fecha = _strdup(get_csv_field(linea, 5));
         if (searchMap(mapCanciones, nombre) == NULL){
-            crearCancion(nombre, artista, duracion, album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
+            crearCancion(nombre, artista, duracion, album, fecha, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
             cont++;
         }
     }
@@ -130,6 +133,41 @@ void importarCancionesCSV(Map* mapCanciones, Map* mapAlbumes, Map* mapArtistas, 
     printf("%d canciones importadas exitosamente\n", cont);
     printf("Hay %ld canciones en el sistema\n", mapCount(mapCanciones));
 }
+
+void exportarCancionesCSV(list* listaCanciones, Map* mapCanciones, Map* mapAlbumes){
+    char filename[1024] = "Exportar";
+    char random [7];
+    char ext [5] = ".csv";
+    sprintf(random, "%d", (rand()%100000));     // SE GENERA NUMERO ALEATORIO PARA EVITAR SOBREESCRIBIR ARCHIVO AL EJECUTAR VARIAS VECES EL PROGRAMA
+    strcat(filename, random);
+    strcat(filename, ext);
+    FILE* cancionesCSV = fopen(filename, "w");
+    if (cancionesCSV == NULL){
+        printf("Error al crear el archivo\n");
+        return;
+    }
+    char* cancionActual = list_first(listaCanciones);
+    do {
+        Cancion* cancionActualStruct = searchMap(mapCanciones, cancionActual);
+        char* albumCancionActual = cancionActualStruct->Album;
+        char* duracionCancionActual = cancionActualStruct->Duracion;
+        char* artistaCancionActual = cancionActualStruct->Artista;
+        Album* albumCancionActualStruct = searchMap(mapAlbumes, albumCancionActual);
+        char* fechaAlbumCancionActual = albumCancionActualStruct->Fecha;
+        fprintf(cancionesCSV, "%s,", cancionActual);
+        fprintf(cancionesCSV, "%s,", artistaCancionActual);
+        fprintf(cancionesCSV, "%s,", duracionCancionActual);
+        fprintf(cancionesCSV, "%s,", albumCancionActual);
+        fprintf(cancionesCSV, "%s", fechaAlbumCancionActual);
+        fprintf(cancionesCSV, "\n");
+        cancionActual = list_next(listaCanciones);
+    } while (cancionActual != NULL);
+    if (fclose(cancionesCSV)!=0){
+        printf("Error al escribir el archivo. Datos no guardados correctamente\n");
+    }
+    return;
+}
+
 
 void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* listaCanciones){ /** opcion 3 **/
     int option;
@@ -160,7 +198,7 @@ void agregarAlbum(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* li
         scanf("%s", duracion);
         printf("\nEscriba artista: ");
         scanf("%s", artista);
-        crearCancion(nombreCancion, artista , duracion, nombreAlbum, mapAlbumes, mapArtistas, mapCanciones, listaCanciones);
+        crearCancion(nombreCancion, artista , duracion, nombreAlbum, fecha, mapAlbumes, mapArtistas, mapCanciones, listaCanciones);
         printf("CANCION AGREGADA CON EXITO\nQuiere agregar canciones al album? [1]SI  [2]NO  ");
         scanf("%d", &option);
     }
@@ -172,6 +210,7 @@ void agregarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* 
     char duracion[1025];
     char artista[1025];
     char album[1025];
+    char fecha[1025];
 
     printf("Escriba nombre de la cancion : ");
     scanf("%s", nombreCancion);
@@ -181,10 +220,12 @@ void agregarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* 
     scanf("%s", duracion);
     printf("\nEscriba el album");
     scanf("%s", album);
+    printf("\nIngrese la fecha");
+    scanf("%s", fecha);
 
     if(searchMap(mapAlbumes,album ) != NULL){
         if (searchMap(mapCanciones , nombreCancion) == NULL) {
-            crearCancion(nombreCancion,artista,duracion,album, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
+            crearCancion(nombreCancion,artista,duracion,album, fecha, mapCanciones, mapArtistas, mapAlbumes, listaCanciones);
             printf("\nCancion agregada\n");
         }else{
             printf("Cancion ya existe");
@@ -192,11 +233,11 @@ void agregarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* 
     }
 }
 
-void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
+void crearCancion(char* nombre, char* artista, char* duracion, char* album, char* fecha, Map* mapCanciones, Map* mapArtistas, Map* mapAlbumes, list* listaCanciones){
     Album* albumAgregar;
     albumAgregar = searchMap(mapAlbumes, album);
     if (albumAgregar == NULL){
-      crearAlbum(album, "01-01-1970", mapAlbumes);
+      crearAlbum(album, fecha, mapAlbumes);
       albumAgregar = searchMap(mapAlbumes, album);
     }
     Artista* artistaAgregar = searchMap(mapArtistas, artista);
@@ -213,6 +254,50 @@ void crearCancion(char* nombre, char* artista, char* duracion, char* album, Map*
     list_push_back(albumAgregar->listaCanciones, nombre);
     list_push_back(artistaAgregar->listaCanciones, nombre);
     list_push_back(listaCanciones, nombre);
+    return;
+}
+
+void eliminarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list* listaCanciones){
+    char buscar[1025];
+    getchar();
+    printf("Ingrese el nombre de la cancion a eliminar");
+    scanf("%[^\n]s", buscar);
+    Cancion* encontrada = searchMap(mapCanciones, buscar);
+    if (encontrada){
+        char* album = _strdup(encontrada->Album);
+        char* artista = _strdup(encontrada->Artista);
+        Album* albumCancionActualStruct = searchMap(mapAlbumes,album);
+        cancionActual = list_first(albumCancionActualStruct->listaCanciones);
+        while (cancionActual != buscar && cancionActual != NULL){
+            cancionActual = list_next(albumCancionActualStruct->listaCanciones);
+        }
+        if (cancionActual == buscar){
+            list_pop_current(albumCancionActualStruct->listaCanciones);
+            printf("1..");
+        }
+        Artista* artistaCancionActualStruct = searchMap(mapArtistas, artista);
+        cancionActual = list_first(artistaCancionActualStruct->listaCanciones);
+        while (cancionActual != buscar && cancionActual != NULL){
+            cancionActual = list_next(artistaCancionActualStruct->listaCanciones);
+        }
+        if (cancionActual == buscar){
+            list_pop_current(albumCancionActualStruct->listaCanciones);
+            printf("2..");
+        }
+        cancionActual = list_first(listaCanciones);
+        while (cancionActual != buscar && cancionActual != NULL){
+            cancionActual = list_next(listaCanciones);
+        }
+        if (cancionActual == buscar){
+            list_pop_current(listaCanciones);
+            printf("3..");
+        }
+        eraseKeyMap(mapCanciones, buscar);
+        printf("Se ha eliminado exitosamente");
+
+    } else {
+        printf("No se pudo eliminar, no se encontro.\n");
+    }
     return;
 }
 
