@@ -267,6 +267,7 @@ void eliminarCancion(Map* mapAlbumes, Map* mapCanciones, Map* mapArtistas, list*
         char* album = _strdup(encontrada->Album);
         char* artista = _strdup(encontrada->Artista);
         Album* albumCancionActualStruct = searchMap(mapAlbumes,album);
+        char* cancionActual;
         cancionActual = list_first(albumCancionActualStruct->listaCanciones);
         while (cancionActual != buscar && cancionActual != NULL){
             cancionActual = list_next(albumCancionActualStruct->listaCanciones);
